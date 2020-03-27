@@ -1,3 +1,7 @@
+# Test Secrets
+dt_secret.yaml
+tmp_deployment-finish.event
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

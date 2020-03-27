@@ -25,6 +25,16 @@ spec:
               value: 'http://event-broker.keptn.svc.cluster.local/keptn'
             - name: CONFIGURATION_SERVICE
               value: 'http://configuration-service.keptn.svc.cluster.local:8080'
+            - name: DT_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dynatrace
+                  key: DT_API_TOKEN
+            - name: DT_TENANT
+              valueFrom:
+                secretKeyRef:
+                  name: dynatrace
+                  key: DT_TENANT              
 ---
 # Expose synthetic-service via Port 8080 within the cluster
 apiVersion: v1

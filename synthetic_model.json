@@ -1,0 +1,67 @@
+{
+    "entityId": "HTTP_CHECK-B58DA1B8B892A05C",
+    "name": "HTTP monitor",
+    "frequencyMin": 1,
+    "enabled": true,
+    "type": "HTTP",
+    "createdFrom": "GUI",
+    "script": {
+      "version": "1.0",
+      "requests": [
+        {
+          "description": "orf.at",
+          "url": "https://orf.at",
+          "method": "GET",
+          "requestBody": "",
+          "configuration": {
+            "acceptAnyCertificate": true,
+            "followRedirects": true
+          },
+          "preProcessingScript": "",
+          "postProcessingScript": ""
+        }
+      ]
+    },
+    "locations": [
+      "SYNTHETIC_LOCATION-61F43EECF5FB8345"
+    ],
+    "anomalyDetection": {
+      "outageHandling": {
+        "globalOutage": true,
+        "localOutage": false,
+        "localOutagePolicy": {
+          "affectedLocations": 1,
+          "consecutiveRuns": 3
+        }
+      },
+      "loadingTimeThresholds": {
+        "enabled": false,
+        "thresholds": [
+          {
+            "type": "TOTAL",
+            "valueMs": 10000
+          }
+        ]
+      }
+    },
+    "tags": [],
+    "managementZones": [
+      {
+        "id": "-7832237287622819191",
+        "name": "!!allSynthetic"
+      }
+    ],
+    "automaticallyAssignedApps": [
+      "APPLICATION-4ADF0EF407C7C545"
+    ],
+    "manuallyAssignedApps": [
+      "APPLICATION-7ADA0EF404C7C545"
+    ],
+    "requests": [
+      {
+        "entityId": "HTTP_CHECK_STEP-E9208469D53BAF38",
+        "name": "orf.at",
+        "sequenceNumber": 1
+      }
+    ]
+  }
