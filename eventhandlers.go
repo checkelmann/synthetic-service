@@ -98,7 +98,8 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	// Check if Synthetic is existing
 	// /monitors?tag=keptn_service:${APPLICATION_SHORT_NAME}&tag=keptn_stage:${CI_ENVIRONMENT_SLUG}
-	dtAPIUrl = "https://" + dtTenant + "/api/v1/synthetic/monitors?tag=keptn_service:" + data.Service + "&tag=keptn_stage:" + data.Stage + "&tag=keptn_project" + data.Project
+	dtAPIUrl = "https://" + dtTenant + "/api/v1/synthetic/monitors?tag=keptn_service:" + data.Service + "&tag=keptn_stage:" + data.Stage + "&tag=keptn_project:" + data.Project
+	log.Println(dtAPIUrl)
 	req, err = http.NewRequest("GET", dtAPIUrl, nil)
 	req.Header.Set("Authorization", "Api-Token "+dtAPItoken)
 
@@ -110,6 +111,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 		json.Unmarshal(data, &synteticsMonitorsObject)
 	}
 	defer resp.Body.Close()
+	log.Println("Existing Monitors")
 	log.Println(synteticsMonitorsObject)
 	var monitorEntityID = ""
 	var monitorMethod = "POST"

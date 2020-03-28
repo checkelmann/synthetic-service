@@ -17,7 +17,6 @@
       "buildnr": "build17",
       "runby": "JohnDoe",
       "synthetic_manuallyassignedapp": "APPLICATION-EA7C4B59F27D43EB"
-      "synthetic_frequency": "APPLICATION-EA7C4B59F27D43EB"
     },
     "deploymentURILocal": "http://carts.sockshop-staging.svc.cluster.local",
     "deploymentURIPublic":  "https://carts.sockshop-staging.my-domain.com"
