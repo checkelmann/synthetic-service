@@ -190,7 +190,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 			"keptn_service:` + data.Service + `"	
 		],
 		"manuallyAssignedApps": [
-		  "APPLICATION-EA7C4B59F27D43EB"
+		  
 		]
 		}
 	`
