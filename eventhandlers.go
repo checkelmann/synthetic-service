@@ -84,6 +84,13 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	log.Println(data.Labels)
 	log.Println(dtTenant)
 
+	var manuallyAssignedApps = ""
+	if v, found := data.Labels["SyntheticManuallyAssignedApp"]; found {
+		log.Println("ManuallyAssignedApps found: " + v)
+		tApps := strings.Split(v, ",")
+		manuallyAssignedApps = "\"" + strings.Join(tApps, "\", \"") + "\""
+	}
+
 	// Get Private Synthetic Check Locations
 	dtAPIUrl := "https://" + dtTenant + "/api/v1/synthetic/locations?type=PRIVATE"
 	req, err := http.NewRequest("GET", dtAPIUrl, nil)
@@ -189,9 +196,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 			"keptn_project:` + data.Project + `",
 			"keptn_service:` + data.Service + `"	
 		],
-		"manuallyAssignedApps": [
-		  
-		]
+		"manuallyAssignedApps": [` + manuallyAssignedApps + `]
 		}
 	`
 
