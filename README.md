@@ -52,7 +52,11 @@ kubectl delete -f deploy/service.yaml
 ## Configuration
 
 The Service is listening for the `sh.keptn.events.deployment-finished` event, and will create a Synthetic Monitor in Dynatrace with the `deploymentURIPubli` as check URL.
-You can add a label `"SyntheticManuallyAssignedApp": "APPLICATION-XYZ` to your event to assign the monitor to an application.
+
+You can add labels in your keptn event to confiure the check:
+
+- `"SyntheticManuallyAssignedApp": "APPLICATION-XYZ` Assign the monitor to an application.
+- `"SyntheticFrequency": "5` Check Frequency in Minutes
 
 ## Development
 
