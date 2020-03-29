@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/cloudevents/sdk-go/pkg/cloudevents"
 	"github.com/keptn-sandbox/sdk-go/pkg/keptn"
+	keptnutils "github.com/keptn/go-utils/pkg/utils"
 )
 
 /**
@@ -62,6 +62,10 @@ func HandleConfigurationChangeEvent(myKeptn *keptn.Keptn, incomingEvent cloudeve
 func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudevents.Event, data *keptn.DeploymentFinishedEventData) error {
 	log.Printf("Handling Deployment Finished Event: %s", incomingEvent.Context.GetID())
 
+	logger := keptnutils.NewLogger(incomingEvent.Context.GetID(), incomingEvent.ID(), "synthetic-service")
+
+	logger.Debug("Debug test")
+
 	// Create http Client
 	client := &http.Client{}
 
@@ -74,26 +78,28 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	if dtAPItoken == "" || dtTenant == "" {
 		log.Println("No Dynatrace Credentials found!")
+		logger.Error("Dynatrace Credentials not found!")
 		return nil
 	} else if data.DeploymentURIPublic == "" {
 		log.Println("No DeploymentURIPublic found!")
+		logger.Info("DeploymentURIPublic not found.")
 		return nil
 	}
 
-	log.Println(data.DeploymentURIPublic)
-	log.Println(data.Labels)
-	log.Println(dtTenant)
+	logger.Debug(data.DeploymentURIPublic)
+	logger.Debug(data.Labels)
+	logger.Debug(dtTenant)
 
 	var manuallyAssignedApps = ""
 	if v, found := data.Labels["SyntheticManuallyAssignedApp"]; found {
-		log.Println("ManuallyAssignedApps found: " + v)
+		logger.Info("ManuallyAssignedApps found: " + v)
 		tApps := strings.Split(v, ",")
 		manuallyAssignedApps = "\"" + strings.Join(tApps, "\", \"") + "\""
 	}
 
 	var SyntheticFrequency = "1"
 	if v, found := data.Labels["SyntheticFrequency"]; found {
-		log.Println("SyntheticFrequency found: " + v)
+		logger.Info("SyntheticFrequency found: " + v)
 		SyntheticFrequency = v
 	}
 
@@ -104,14 +110,15 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error %s\n", err)
+		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
 		json.Unmarshal(data, &locationsObject)
 	}
 	defer resp.Body.Close()
 	var CheckLocations []string
-	log.Println(locationsObject)
+	logger.Debug(locationsObject)
 	for _, location := range locationsObject.Locations {
 		log.Println(location.EntityID)
 		CheckLocations = append(CheckLocations, location.EntityID)
@@ -120,24 +127,22 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	// Check if Synthetic is existing
 	// /monitors?tag=keptn_service:${APPLICATION_SHORT_NAME}&tag=keptn_stage:${CI_ENVIRONMENT_SLUG}
 	dtAPIUrl = "https://" + dtTenant + "/api/v1/synthetic/monitors?tag=keptn_service:" + data.Service + "&tag=keptn_stage:" + data.Stage + "&tag=keptn_project:" + data.Project
-	log.Println(dtAPIUrl)
 	req, err = http.NewRequest("GET", dtAPIUrl, nil)
 	req.Header.Set("Authorization", "Api-Token "+dtAPItoken)
 
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error %s\n", err)
+		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
 		json.Unmarshal(data, &synteticsMonitorsObject)
 	}
 	defer resp.Body.Close()
-	log.Println("Existing Monitors")
-	log.Println(synteticsMonitorsObject)
 	var monitorEntityID = ""
 	var monitorMethod = "POST"
 	for _, monitor := range synteticsMonitorsObject.Monitors {
-		log.Println("Found existing Monitor " + monitor.EntityID)
+		logger.Info("Found existing Monitor " + monitor.EntityID)
 		monitorEntityID = monitor.EntityID
 		monitorMethod = "PUT"
 	}
@@ -206,7 +211,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 		}
 	`
 
-	log.Println(jsonPayload)
+	logger.Debug(jsonPayload)
 
 	var jsonStr = []byte(jsonPayload)
 
@@ -224,10 +229,11 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	resp, err = client.Do(req)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error %s\n", err)
+		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
-		log.Println(string(data))
+		logger.Debug(string(data))
 	}
 	defer resp.Body.Close()
 	// Create Monitor Object

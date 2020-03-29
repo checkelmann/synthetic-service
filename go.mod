@@ -1,4 +1,4 @@
-module example.com/synthetic-service
+module github.com/checkelmann/synthetic-service
 
 go 1.12
 
@@ -11,4 +11,5 @@ require (
 	github.com/interagent/schematic v0.0.0-20200311222958-05b32985e65e // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/keptn-sandbox/sdk-go v0.0.0-20200326074108-fdc1d1d61136
+	github.com/keptn/go-utils v0.6.1
 )
