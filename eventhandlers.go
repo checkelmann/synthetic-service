@@ -64,8 +64,6 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	logger := keptnutils.NewLogger(incomingEvent.Context.GetID(), incomingEvent.ID(), "synthetic-service")
 
-	logger.Debug("Debug test")
-
 	// Create http Client
 	client := &http.Client{}
 
@@ -77,18 +75,15 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	dtAPItoken := os.Getenv("DT_API_TOKEN")
 
 	if dtAPItoken == "" || dtTenant == "" {
-		log.Println("No Dynatrace Credentials found!")
 		logger.Error("Dynatrace Credentials not found!")
 		return nil
 	} else if data.DeploymentURIPublic == "" {
-		log.Println("No DeploymentURIPublic found!")
 		logger.Info("DeploymentURIPublic not found.")
 		return nil
 	}
 
-	logger.Debug(data.DeploymentURIPublic)
-	logger.Debug(data.Labels)
-	logger.Debug(dtTenant)
+	logger.Debug("DeploymentURIPublic: " + data.DeploymentURIPublic)
+	logger.Debug("Using Tenant: " + dtTenant)
 
 	var manuallyAssignedApps = ""
 	if v, found := data.Labels["SyntheticManuallyAssignedApp"]; found {
@@ -110,7 +105,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logger.Error("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error")
 		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
@@ -118,9 +113,8 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	}
 	defer resp.Body.Close()
 	var CheckLocations []string
-	logger.Debug(locationsObject)
 	for _, location := range locationsObject.Locations {
-		log.Println(location.EntityID)
+		logger.Info("Synthetic Loctioan: " + location.EntityID)
 		CheckLocations = append(CheckLocations, location.EntityID)
 	}
 
@@ -132,7 +126,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	resp, err = client.Do(req)
 	if err != nil {
-		logger.Error("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error")
 		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
@@ -229,7 +223,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	resp, err = client.Do(req)
 	if err != nil {
-		logger.Error("The HTTP request failed with error %s\n", err)
+		logger.Error("The HTTP request failed with error")
 		return nil
 	} else {
 		data, _ := ioutil.ReadAll(resp.Body)
