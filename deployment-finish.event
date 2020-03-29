@@ -16,7 +16,8 @@
       "testid": "${TESTID}",
       "buildnr": "build17",
       "runby": "JohnDoe",
-      "SyntheticManuallyAssignedApp": "APPLICATION-EA7C4B59F27D43EB"
+      "SyntheticManuallyAssignedApp": "APPLICATION-EA7C4B59F27D43EB",
+      "SyntheticFrequency": "5"
     },
     "deploymentURILocal": "http://carts.sockshop-staging.svc.cluster.local",
     "deploymentURIPublic":  "https://google.com"

@@ -91,6 +91,12 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 		manuallyAssignedApps = "\"" + strings.Join(tApps, "\", \"") + "\""
 	}
 
+	var SyntheticFrequency = "1"
+	if v, found := data.Labels["SyntheticFrequency"]; found {
+		log.Println("SyntheticFrequency found: " + v)
+		SyntheticFrequency = v
+	}
+
 	// Get Private Synthetic Check Locations
 	dtAPIUrl := "https://" + dtTenant + "/api/v1/synthetic/locations?type=PRIVATE"
 	req, err := http.NewRequest("GET", dtAPIUrl, nil)
@@ -138,8 +144,8 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 
 	var jsonPayload = `
 		{
-		"name": "` + data.Project + ` - ` + data.Service + ` - ` + data.Stage + `",
-		"frequencyMin": 1,
+		"name": "` + data.Project + `.` + data.Service + `.` + data.Stage + `",
+		"frequencyMin": ` + SyntheticFrequency + `,
 		"enabled": true,
 		"type": "HTTP",
 		"script": {
