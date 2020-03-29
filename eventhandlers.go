@@ -72,6 +72,14 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	dtTenant := os.Getenv("DT_TENANT")
 	dtAPItoken := os.Getenv("DT_API_TOKEN")
 
+	if dtAPItoken == "" || dtTenant == "" {
+		log.Println("No Dynatrace Credentials found!")
+		return nil
+	} else if data.DeploymentURIPublic == "" {
+		log.Println("No DeploymentURIPublic found!")
+		return nil
+	}
+
 	log.Println(data.DeploymentURIPublic)
 	log.Println(data.Labels)
 	log.Println(dtTenant)
