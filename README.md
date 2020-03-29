@@ -49,6 +49,11 @@ To delete a deployed *synthetic-service*, use the file `deploy/*.yaml` files fro
 kubectl delete -f deploy/service.yaml
 ```
 
+## Configuration
+
+The Service will listen for the `sh.keptn.events.deployment-finished` event, and will create a Synthetic Monitor in Dynatrace with the `deploymentURIPubli` as check URL.
+You can add a label `"SyntheticManuallyAssignedApp": "APPLICATION-XYZ` to your event to assign the monitor to an application.
+
 ## Development
 
 Development can be conducted using any GoLang compatible IDE or Text-Editor (e.g., Jetbrains GoLand, VSCode with Go plugins).

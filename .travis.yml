@@ -13,7 +13,7 @@ jobs:
       # Check Codestyle using go fmt
       services: []
       language: go
-      if: type = pull_request
+      if: type = push
       go:
         - 1.12.x
       # skip install
@@ -33,7 +33,7 @@ jobs:
       # Run tests
       services: []
       language: go
-      if: type = pull_request
+      if: type = push
       go:
         - 1.12.x
       # cache some go files
