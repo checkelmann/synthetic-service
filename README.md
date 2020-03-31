@@ -1,4 +1,4 @@
-# synthetic-service
+# dynatrace-synthetic-service
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/checkelmann/synthetic-service)
 [![Build Status](https://travis-ci.org/checkelmann/synthetic-service.svg?branch=master)](https://travis-ci.org/checkelmann/synthetic-service)
 [![Go Report Card](https://goreportcard.com/badge/github.com/checkelmann/synthetic-service)](https://goreportcard.com/report/github.com/checkelmann/synthetic-service)
@@ -6,17 +6,17 @@
 This implements a synthetic-service for Keptn.
 
 ## Prerequirements
-The keptn dynatrace-service must be installed in order to use the synthetic-service as it is using the Dynatrace credentials from it.
+The keptn dynatrace-service must be installed in order to use the dynatrace-synthetic-service as it is using the Dynatrace credentials from it.
 
 ## Compatibility Matrix
 
-| Keptn Version    | [synthetic-service Docker Image](https://hub.docker.com/r/checkelmann/synthetic-service/tags) |
+| Keptn Version    | [dynatrace-synthetic-service Docker Image](https://hub.docker.com/r/checkelmann/synthetic-service/tags) |
 |:----------------:|:----------------------------------------:|
 |       0.6.1      | checkelmann/synthetic-service:0.1.0 |
 
 ## Installation
 
-The *synthetic-service* can be installed as a part of [Keptn's uniform](https://keptn.sh).
+The *dynatrace-synthetic-service* can be installed as a part of [Keptn's uniform](https://keptn.sh).
 
 ### Deploy in your Kubernetes cluster
 
