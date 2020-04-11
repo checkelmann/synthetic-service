@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cloudevents/sdk-go/pkg/cloudevents"
@@ -26,6 +27,112 @@ import (
   -> "sh.keptn.event.problem.open"
   -> "sh.keptn.events.problem"
 */
+
+// httpMonitor Struct
+type httpMonitor struct {
+	EntityID                  string                `json:"entityId"`
+	Name                      string                `json:"name"`
+	FrequencyMin              int                   `json:"frequencyMin"`
+	Enabled                   bool                  `json:"enabled"`
+	Type                      string                `json:"type"`
+	CreatedFrom               string                `json:"createdFrom"`
+	Script                    Script                `json:"script"`
+	Locations                 []string              `json:"locations"`
+	AnomalyDetection          AnomalyDetection      `json:"anomalyDetection"`
+	Tags                      []Tags                `json:"tags"`
+	ManagementZones           []ManagementZones     `json:"managementZones"`
+	AutomaticallyAssignedApps []string              `json:"automaticallyAssignedApps"`
+	ManuallyAssignedApps      []string              `json:"manuallyAssignedApps"`
+	Requests                  []httpMonitorRequests `json:"requests"`
+}
+
+// Configuration httpMonitor
+type Configuration struct {
+	AcceptAnyCertificate bool `json:"acceptAnyCertificate"`
+	FollowRedirects      bool `json:"followRedirects"`
+}
+
+// ScriptRequests httpMonitor.Script
+type ScriptRequests struct {
+	Description          string        `json:"description"`
+	URL                  string        `json:"url"`
+	Method               string        `json:"method"`
+	RequestBody          string        `json:"requestBody"`
+	Configuration        Configuration `json:"configuration"`
+	Validation           Validation    `json:"validation"`
+	PreProcessingScript  string        `json:"preProcessingScript"`
+	PostProcessingScript string        `json:"postProcessingScript"`
+}
+
+// Rules Validation
+type Rules struct {
+	Value       string `json:"value"`
+	PassIfFound bool   `json:"passIfFound"`
+	Type        string `json:"type"`
+}
+
+// Tags httpMonitor
+type Tags struct {
+	Source  string `json:"source"`
+	Context string `json:"context"`
+	Key     string `json:"key"`
+}
+
+// Validation ScriptRequests
+type Validation struct {
+	Rules         []Rules `json:"rules"`
+	RulesChaining string  `json:"rulesChaining"`
+}
+
+// Script httpMonitor
+type Script struct {
+	Version  string           `json:"version"`
+	Requests []ScriptRequests `json:"requests"`
+}
+
+// LocalOutagePolicy httpMonitor
+type LocalOutagePolicy struct {
+	AffectedLocations int `json:"affectedLocations"`
+	ConsecutiveRuns   int `json:"consecutiveRuns"`
+}
+
+// OutageHandling httpMonitor
+type OutageHandling struct {
+	GlobalOutage      bool              `json:"globalOutage"`
+	LocalOutage       bool              `json:"localOutage"`
+	LocalOutagePolicy LocalOutagePolicy `json:"localOutagePolicy"`
+}
+
+// Thresholds httpMonitor
+type Thresholds struct {
+	Type    string `json:"type"`
+	ValueMs int    `json:"valueMs"`
+}
+
+// LoadingTimeThresholds httpMonitor
+type LoadingTimeThresholds struct {
+	Enabled    bool         `json:"enabled"`
+	Thresholds []Thresholds `json:"thresholds"`
+}
+
+// AnomalyDetection httpMonitor
+type AnomalyDetection struct {
+	OutageHandling        OutageHandling        `json:"outageHandling"`
+	LoadingTimeThresholds LoadingTimeThresholds `json:"loadingTimeThresholds"`
+}
+
+// ManagementZones httpMonitor
+type ManagementZones struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// httpMonitorRequests
+type httpMonitorRequests struct {
+	EntityID       string `json:"entityId"`
+	Name           string `json:"name"`
+	SequenceNumber int    `json:"sequenceNumber"`
+}
 
 type SyntheticLocations struct {
 	Locations []struct {
@@ -85,17 +192,20 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 	logger.Debug("DeploymentURIPublic: " + data.DeploymentURIPublic)
 	logger.Debug("Using Tenant: " + dtTenant)
 
-	var manuallyAssignedApps = ""
+	var manuallyAssignedApps []string
 	if v, found := data.Labels["SyntheticManuallyAssignedApp"]; found {
 		logger.Info("ManuallyAssignedApps found: " + v)
-		tApps := strings.Split(v, ",")
-		manuallyAssignedApps = "\"" + strings.Join(tApps, "\", \"") + "\""
+		manuallyAssignedApps = strings.Split(v, ",")
+		//manuallyAssignedApps = "\"" + strings.Join(tApps, "\", \"") + "\""
 	}
 
-	var SyntheticFrequency = "1"
+	var SyntheticFrequency = 5
 	if v, found := data.Labels["SyntheticFrequency"]; found {
 		logger.Info("SyntheticFrequency found: " + v)
-		SyntheticFrequency = v
+		sfTemp, err := strconv.Atoi(v)
+		if err == nil {
+			SyntheticFrequency = sfTemp
+		}
 	}
 
 	// Get Private Synthetic Check Locations
@@ -141,73 +251,82 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 		monitorMethod = "PUT"
 	}
 
-	var jsonPayload = `
-		{
-		"name": "` + data.Project + `.` + data.Service + `.` + data.Stage + `",
-		"frequencyMin": ` + SyntheticFrequency + `,
-		"enabled": true,
-		"type": "HTTP",
-		"script": {
-		  "version": "1.0",
-		  "requests": [
-			{
-			  "description": "` + data.Project + ` - ` + data.Service + ` - ` + data.Stage + `",
-			  "url": "` + data.DeploymentURIPublic + `",
-			  "method": "GET",
-			  "requestBody": "",
-			  "validation": {
-				"rules": [
-				  {
-					"value": ">=400",
-					"passIfFound": false,
-					"type": "httpStatusesList"
-				  }
-				],
-				"rulesChaining": "or"
-			  },      
-			  "configuration": {
-				"acceptAnyCertificate": true,
-				"followRedirects": true
-			  },
-			  "preProcessingScript": "",
-			  "postProcessingScript": ""
-			}
-		  ]
+	Monitor := httpMonitor{
+		Name:         data.Project + `.` + data.Service + `.` + data.Stage,
+		Enabled:      true,
+		Type:         "HTTP",
+		FrequencyMin: SyntheticFrequency,
+		Locations:    CheckLocations,
+		AnomalyDetection: AnomalyDetection{
+			LoadingTimeThresholds: LoadingTimeThresholds{
+				Enabled: false,
+				Thresholds: []Thresholds{
+					Thresholds{
+						Type:    "TOTAL",
+						ValueMs: 10000,
+					},
+				},
+			},
+			OutageHandling: OutageHandling{
+				GlobalOutage: true,
+				LocalOutage:  false,
+				LocalOutagePolicy: LocalOutagePolicy{
+					AffectedLocations: 1,
+					ConsecutiveRuns:   3,
+				},
+			},
 		},
-		"locations": [
-			"` + strings.Join(CheckLocations, "\", \"") + `"
-		],
-		"anomalyDetection": {
-		  "outageHandling": {
-			"globalOutage": true,
-			"localOutage": false,
-			"localOutagePolicy": {
-			  "affectedLocations": 1,
-			  "consecutiveRuns": 3
-			}
-		  },
-		  "loadingTimeThresholds": {
-			"enabled": false,
-			"thresholds": [
-			  {
-				"type": "TOTAL",
-				"valueMs": 10000
-			  }
-			]
-		  }
+		Script: Script{
+			Version: "1.0",
+			Requests: []ScriptRequests{
+				ScriptRequests{
+					Description: data.Project + `.` + data.Service + `.` + data.Stage,
+					Method:      "GET",
+					URL:         data.DeploymentURIPublic,
+					RequestBody: "",
+					Validation: Validation{
+						RulesChaining: "or",
+						Rules: []Rules{
+							Rules{
+								Value:       ">=400",
+								PassIfFound: false,
+								Type:        "httpStatusesList",
+							},
+						},
+					},
+					Configuration: Configuration{
+						AcceptAnyCertificate: true,
+						FollowRedirects:      true,
+					},
+				},
+			},
 		},
-		"tags": [
-			"keptn_stage:` + data.Stage + `",
-			"keptn_project:` + data.Project + `",
-			"keptn_service:` + data.Service + `"	
-		],
-		"manuallyAssignedApps": [` + manuallyAssignedApps + `]
-		}
-	`
+		Tags: []Tags{
+			Tags{
+				Source:  "USER",
+				Context: "CONTEXTLESS",
+				Key:     "keptn_project:" + data.Project,
+			},
+			Tags{
+				Source:  "USER",
+				Context: "CONTEXTLESS",
+				Key:     "keptn_service:" + data.Service,
+			},
+			Tags{
+				Source:  "USER",
+				Context: "CONTEXTLESS",
+				Key:     "keptn_stage:" + data.Stage,
+			},
+		},
+		ManuallyAssignedApps: manuallyAssignedApps,
+	}
 
-	logger.Debug(jsonPayload)
-
-	var jsonStr = []byte(jsonPayload)
+	jsonStr, err := json.Marshal(Monitor)
+	if err != nil {
+		logger.Debug("Error formating json")
+		return nil
+	}
+	logger.Debug(string(jsonStr))
 
 	if monitorEntityID != "" {
 		dtAPIUrl = "https://" + dtTenant + "/api/v1/synthetic/monitors/" + monitorEntityID
@@ -230,47 +349,7 @@ func HandleDeploymentFinishedEvent(myKeptn *keptn.Keptn, incomingEvent cloudeven
 		logger.Debug(string(data))
 	}
 	defer resp.Body.Close()
-	// Create Monitor Object
-	/*var Monitor SyntheticMonitor
 
-	Monitor.Enabled = true
-	Monitor.FrequencyMin = 5
-	Monitor.Name = data.Project + " - " + data.Service + " - " + data.Stage
-	Monitor.Type = "HTTP"
-	Monitor.AnomalyDetection.OutageHandling.GlobalOutage = true
-	Monitor.AnomalyDetection.OutageHandling.LocalOutage = false
-	Monitor.AnomalyDetection.OutageHandling.LocalOutagePolicy.AffectedLocations = 1
-	Monitor.AnomalyDetection.OutageHandling.LocalOutagePolicy.ConsecutiveRuns = 3
-	Monitor.Locations = CheckLocations
-	Monitor.Script.Version = "1.0"
-	Monitor.Script.Requests = []SyntheticMonitor.Script.Requests{
-		SyntheticMonitor.Script.Requests {
-			Description: "Test"
-		}
-	}*/
-
-	/*
-			Requests []struct {
-				Description   string `json:"description"`
-				URL           string `json:"url"`
-				Method        string `json:"method"`
-				RequestBody   string `json:"requestBody"`
-				Configuration struct {
-					AcceptAnyCertificate bool `json:"acceptAnyCertificate"`
-					FollowRedirects      bool `json:"followRedirects"`
-				} `json:"configuration"`
-				PreProcessingScript  string `json:"preProcessingScript"`
-				PostProcessingScript string `json:"postProcessingScript"`
-			} `json:"requests"`
-
-		jsonValue, err := json.Marshal(Monitor)
-		if err != nil {
-			log.Println(err)
-			return nil
-		}
-
-		log.Println(string(jsonValue))
-	*/
 	return nil
 }
 
