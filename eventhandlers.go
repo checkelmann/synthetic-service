@@ -41,8 +41,8 @@ type httpMonitor struct {
 	AnomalyDetection          AnomalyDetection      `json:"anomalyDetection"`
 	Tags                      []Tags                `json:"tags"`
 	ManagementZones           []ManagementZones     `json:"managementZones"`
-	AutomaticallyAssignedApps []string              `json:"automaticallyAssignedApps"`
-	ManuallyAssignedApps      []string              `json:"manuallyAssignedApps"`
+	AutomaticallyAssignedApps []string              `json:"automaticallyAssignedApps,omitempty"`
+	ManuallyAssignedApps      []string              `json:"manuallyAssignedApps,omitempty"`
 	Requests                  []httpMonitorRequests `json:"requests"`
 }
 

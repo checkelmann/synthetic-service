@@ -12,7 +12,7 @@ The keptn dynatrace-service must be installed in order to use the dynatrace-synt
 
 | Keptn Version    | [dynatrace-synthetic-service Docker Image](https://hub.docker.com/r/checkelmann/synthetic-service/tags) |
 |:----------------:|:----------------------------------------:|
-|       0.6.1      | checkelmann/synthetic-service:0.1.0 |
+|       0.6.1      | checkelmann/synthetic-service:0.1.1 |
 
 ## Installation
 
